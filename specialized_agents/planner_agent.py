@@ -169,6 +169,10 @@ class ContentPlan(BaseModel):
     writing_plan: str = Field(description="A concise plan (3-4 steps) on how to approach writing content for this topic to make it viral.")
     confidence: Confidence = Field(description="What is the confidence in proposing to write about this topic and content")
 
+class TopTwoTopics(BaseModel):
+    plan_1: ContentPlan = Field(description="The plan to write the first topic")
+    plan_2: ContentPlan = Field(description="The plan to write the second topic")
+
 model_search = LitellmModel(
     model="groq/moonshotai/kimi-k2-instruct-0905",
     api_key=groq_api_key,
@@ -188,7 +192,7 @@ If no strong signals are found, clearly state this and stop.
 """
 
 planner_instructions = """
-You are an autonomous Planning Agent. Choose ONE topic strictly from the provided RESEARCH NOTES.
+You are an autonomous Planning Agent. Choose TWO topics strictly from the provided RESEARCH NOTES.
 You must select a source_url that appears verbatim in the RESEARCH NOTES, and every key_statment must be supported by that source.
 If the notes do not contain a strong AI/LLM/RAG/Agents topic with a credible source URL, dont include it.
 Return valid JSON matching the schema only; do not add fields and do not write the final content.
@@ -208,7 +212,7 @@ planner_agent = Agent(
     name="Planner Agent",
     model=model_planner,
     instructions=planner_instructions,
-    output_type=ContentPlan
+    output_type=TopTwoTopics
 )
 
 async def main():
@@ -227,19 +231,10 @@ async def main():
 )
 
     
-    plan = planner_result.final_output
-    if plan:
-        log(f"PLAN: {plan}", level="success")
-        log(f"TOPIC: {plan.topic}", level="success")
-        log(f"SOURCE: {plan.source_url}", level="success")
-        log(f"THESIS: {plan.thesis}", level="success")
-        log(f"WHY_NOW: {plan.why_now}", level="success")
-        log(f"KEY_POINTS: {plan.key_points}", level="success")
-        log(f"AUDIENCE: {plan.target_audience}", level="success")
-        log(f"STANCE: {plan.stance}", level="success")
-        log(f"CONFIDENCE: {plan.confidence}", level="success")
-
-        log(f"PLAN: {plan.writing_plan}", level="success")
+    plans = planner_result.final_output
+    if plans:
+        log(f"PLAN 1: {plans.plan_1}", level="success")
+        log(f"PLAN 2: {plans.plan_2}", level="success")
     else:
         log("Planner failed to generate a plan.", level="error")
 
