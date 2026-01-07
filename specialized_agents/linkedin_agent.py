@@ -27,7 +27,8 @@ BRAND_CONTEXT = {
 }
 
 class LinkedInPostSchema(BaseModel):
-    post: str = Field(description="LinkedIn post generated in markdown format")
+    post_1: str = Field(description="First LinkedIn post generated in markdown format")
+    post_2: str = Field(description="Second LinkedIn post generated in markdown format")
 
 model = LitellmModel(
     model="groq/meta-llama/llama-4-scout-17b-16e-instruct",
@@ -36,7 +37,7 @@ model = LitellmModel(
 
 instructions = """
 You are an autonomous LinkedIn Post Writer Agent.
-Using the provided content plan and brand context, write a single high-quality LinkedIn post.
+Using the provided content plan and brand context, write a single high-quality LinkedIn post for each topic.
 The post must be clear, practical, and grounded in real information, reflecting an AI Engineer’s perspective.
 Follow LinkedIn best practices: concise paragraphs, and a light call-to-action.
 Do not search the web, invent facts, or output anything other than the final post text.
@@ -54,23 +55,33 @@ async def main():
     
     runner = await Runner.run(
     linkedin_agent,
-    f"""Plan: 
-[18:38:08] ✅ SOURCE: https://9to5google.com/2026/01/06/moto-tag-2-announcement-ces-2026-android-find-hub/
-[18:38:08] ✅ THESIS: The Moto Tag 2 represents a significant improvement in AI-powered tracking technology for Android devices, offering enhanced location accuracy, battery life, and durability.
-[18:38:08] ✅ WHY_NOW: The recent launch of Moto Tag 2 at CES 2026 and its integration with Android 16 AI location services makes it a timely and relevant topic.
-[18:38:08] ✅ KEY_POINTS: ['Motorola launched Moto Tag 2 at CES 2026 with enhanced tracking features.', 'Moto Tag 2 utilizes Bluetooth 6.0 Channel Sounding for improved location accuracy.', 'The device boasts a 500-day battery life and IP68 rating for durability.', 'Moto Tag 2 is the first UWB tracker to leverage Android 16 AI location services.', 'The launch of Moto Tag 2 signifies advancements in AI-powered Android Find Hub trackers.']
-[18:38:08] ✅ AUDIENCE: Tech enthusiasts and Android users interested in tracking technology.
-[18:38:08] ✅ STANCE: Stance.EDUCATIONAL
-[18:38:08] ✅ CONFIDENCE: Confidence.HIGH
-[18:38:08] ✅ PLAN_FOR_WRITE: Research the technology behind Moto Tag 2's tracking features, compare it with existing solutions, highlight user benefits, and discuss future implications for Android users."""
+    f"""
+         PLAN 1: topic='OpenAI GPT-4.5 Turbo' source_url='https://techcrunch.com/2026/01/07/openai-gpt-4-5-turbo-rag-native-256k-context/' 
+         thesis="OpenAI's GPT-4.5 Turbo offers a RAG-native architecture, 256k context, and highly competitive pricing, making it a significant advancement in AI technology." 
+         why_now='The recent launch of GPT-4.5 Turbo by OpenAI is a timely development as it addresses current needs for more efficient, cost-effective, and powerful language models.' 
+         key_points=['GPT-4.5 Turbo features a 256k context window.', 'It has a RAG-native architecture.', 'Pricing is under $0.10 per 1k token.',
+        'This model is aimed at enhancing performance and reducing costs.', 'The launch signifies a major step forward in AI technology.'] target_audience='AI developers, 
+        tech industry professionals, and businesses looking for advanced language model solutions.' stance=<Stance.EDUCATIONAL: 'educational'> writing_plan='Step 1: 
+        Introduce the GPT-4.5 Turbo and its key features. Step 2: Discuss the implications of the RAG-native architecture and 256k context window. Step 3: 
+        Analyze the cost benefits and potential market impact. Step 4: Explore potential applications and future developments.' confidence=<Confidence.HIGH: 'high'>
+[19:18:17] ✅ PLAN 2: topic="LangChain's LongRAG" source_url='https://www.theverge.com/2026/01/07/langchain-longrag-million-token-rag-enterprise/' 
+thesis="LangChain's LongRAG library enables the chunking of entire codebases into 1M-token contexts, facilitating advanced enterprise Q&A capabilities." 
+why_now='The release of LongRAG by LangChain is timely as it addresses the growing need for more sophisticated and scalable solutions in enterprise Q&A.' 
+key_points=['LongRAG allows for 1M-token context chunks.', 'It is designed for enterprise Q&A applications.', 'The library enables more comprehensive and 
+context-aware querying.', 'This development is crucial for enterprises dealing with large codebases.', 'It enhances the capabilities of RAG systems in handling complex queries.'] 
+target_audience='Enterprise developers, software engineers, and organizations looking to improve their Q&A systems.' 
+stance=<Stance.PRACTICAL: 'practical'> writing_plan="Step 1: Introduce LangChain's LongRAG and its primary function. Step 2: Discuss the benefits of 1M-token context chunks for 
+enterprise Q&A. Step 3: Explore the technical implementation and potential challenges. Step 4: Highlight case studies or potential applications." confidence=<Confidence.HIGH: 'high'>
+    """
 )
 
     
-    linkedin_post = runner.final_output.post
-    if linkedin_post:
-        log(f"POST: {linkedin_post}", level="success")
+    linkedin_posts = runner.final_output
+    if linkedin_posts:
+        log(f"POST_1: {linkedin_posts.post_1}", level="success")
+        log(f"POST_2: {linkedin_posts.post_2}", level="success")
     else:
-        log("Failed to generate a post.", level="error")
+        log("Failed to generate posts.", level="error")
 
 if __name__ == "__main__":
     asyncio.run(main())
