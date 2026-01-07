@@ -18,8 +18,7 @@ groq_api_key = os.getenv('GROQ_API_KEY')
 @function_tool
 def search_top_headlines(category: str):
     """
-        Fetches a small, recent set of top news headlines in tech industry and doesn't 
-        require any input parameter to be passed.
+        Fetches a small, recent set of top news headlines in tech industry.
 
         Use this tool when you need to discover what topics are currently trending
         tech industry and category. Do NOT use this tool to fetch full article text,
@@ -36,7 +35,7 @@ def search_top_headlines(category: str):
     params = {
         "category": "technology",
         "lang": "en",
-        "max": 6,
+        "max": 4,
         "country": "us",
         "token": os.getenv("GNEWS_API_KEY")
     }
@@ -45,17 +44,31 @@ def search_top_headlines(category: str):
         data = response.json()
 
         headlines: list[dict[str, str]] = []
+        # keywords = [
+        #     "ai", "llm", "rag", "agents", "gpt",
+        #     "openai", "deepseek", "anthropic",
+        #     "claude", "nvidia",
+        # ]
 
         for item in data.get("articles", []):
+            if len(headlines) >= 2:
+                break
+            # title = item.get("title", "").lower()
+            # if not any(keyword in title for keyword in keywords):
+            #     log("Doesn't contain AI. Skipping", level="info")
+            #     continue
+
+            # log(f"Headline contains AI. Adding '{title}'", level="info")
+
             content = extract_content_text(item.get("url"))
-            if content:
-                headlines.append({
+            if not content:
+                continue
+            headlines.append({
                     "title": item.get("title"),
                     "url_link": item.get("url"),
                     "content": content
-                })
-            if len(headlines) >= 4:
-                break
+            })
+
         log("Headlines search successful", level="success")
         log(f"Headlines: {headlines}", level="info")
         return {
@@ -63,6 +76,8 @@ def search_top_headlines(category: str):
             "headlines": headlines,
             "error_code": None
         }
+            
+        
     except Exception as e:
         log(f"Headlines search failed: {e}", level="error")
         return {
@@ -105,7 +120,9 @@ def search_news(query: str)->dict:
 
         results: list[dict[str, str]] = []
 
-        for item in data.get("news_results", [])[:3]:
+        for item in data.get("news_results", []):
+            if len(results) >= 2:
+                break
             url_link = item.get("link")
             content = extract_content_text(url_link)
             if content:
@@ -114,8 +131,7 @@ def search_news(query: str)->dict:
                     "url_link": url_link,
                     "content": content
                 })
-            if len(results) >= 2:
-                break
+            
         log("News search successful", level="success")
         log(f"News search results: {results}", level="info")
         return {
@@ -154,27 +170,27 @@ class ContentPlan(BaseModel):
     confidence: Confidence = Field(description="What is the confidence in proposing to write about this topic and content")
 
 model_search = LitellmModel(
-    model="groq/llama-3.1-8b-instant",
+    model="groq/moonshotai/kimi-k2-instruct-0905",
     api_key=groq_api_key,
 )
 
 model_planner = LitellmModel(
-    model="groq/openai/gpt-oss-120b",
+    model="groq/meta-llama/llama-4-scout-17b-16e-instruct",
     api_key=groq_api_key,
 )
 
 search_instructions = """
 You are an autonomous Search Agent that proactively discovers current topics worth writing about.
 Independently choose relevant queries and categories related to AI, RAG, LLM, engineering, startups, and AI Agents only.
-Use `search_top_headlines` and `search_news` as needed; tool use is expected.
-Return concise bullet-point findings referencing real article titles, sources and content only.
+Use `search_top_headlines` and `search_news` as needed; tool use is expected. You can the tools only once.
+Return concise dict containing references to real article titles, sources and content only.
 If no strong signals are found, clearly state this and stop.
 """
 
 planner_instructions = """
 You are an autonomous Planning Agent. Choose ONE topic strictly from the provided RESEARCH NOTES.
 You must select a source_url that appears verbatim in the RESEARCH NOTES, and every key_statment must be supported by that source.
-If the notes do not contain a strong AI/LLM/RAG/Agents topic with a credible source URL, return no None for output fields.
+If the notes do not contain a strong AI/LLM/RAG/Agents topic with a credible source URL, dont include it.
 Return valid JSON matching the schema only; do not add fields and do not write the final content.
 Do not guess, generalize, or introduce facts not present in the notes.
 """
@@ -213,6 +229,7 @@ async def main():
     
     plan = planner_result.final_output
     if plan:
+        log(f"PLAN: {plan}", level="success")
         log(f"TOPIC: {plan.topic}", level="success")
         log(f"SOURCE: {plan.source_url}", level="success")
         log(f"THESIS: {plan.thesis}", level="success")
