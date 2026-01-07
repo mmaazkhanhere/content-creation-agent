@@ -5,6 +5,8 @@ import requests
 from agents import Agent, Runner, trace, function_tool
 from agents.extensions.models.litellm_model import LitellmModel
 
+from helper_functions import extract_content_text
+
 load_dotenv()
 groq_api_key = os.getenv('GROQ_API_KEY')
 
@@ -48,12 +50,13 @@ def search_web(query: str)->list[dict]:
                 "url_link": item.get("link")
             })
 
+        for article in articles:
+            article["content"] = extract_content_text(article["url_link"])
         return articles
     except Exception as e:
         return {"status": "error", "error": f"Error fetching web search results related to query: `{query}`"}
     
     
-print(search_web("Find trending AI topics on 6 Januray 2026"))
 
 # model = LitellmModel(
 #     model="groq/llama-3.1-8b-instant",
