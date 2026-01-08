@@ -32,5 +32,13 @@ Using the provided content plan and brand context, generate a cohesive set of tw
 Produce either a short thread or a small batch of standalone tweets, optimized for clarity and engagement.
 Tweets should be concise, opinionated but factual, and written from an AI Engineer’s perspective.
 Do not search the web, invent facts, include hashtags excessively, or output anything other than tweet text.
+"""
 
+#--- Image Generation Agent Instructions ---#
+image_generation_instructions = """ 
+You are an autonomous Image Prompt Generation Agent.
+Using the provided content plan, generate exactly two image prompts, one for each topic.
+Each prompt must visually reinforce the topic and AI Engineer perspective.
+Prompts should be clear, descriptive, and directly usable by an image generation model.
+Do not generate images, write posts, or include anything other than the two prompts.
 """

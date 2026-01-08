@@ -37,3 +37,14 @@ class LinkedInPostSchema(BaseModel):
 class TwitterPostSchema(BaseModel):
     topic_1_tweets: list[str] = Field(description="A list of 4 distinct tweets for the first topic (PLAN 1)")
     topic_2_tweets: list[str] = Field(description="A list of 4 distinct tweets for the second topic (PLAN 2)")
+
+#---- Image Generation Agent Schema --------#
+class ImageGenerationPrompt(BaseModel):
+    prompt: str = Field(description="The prompt describing the image to generate")
+    style: str = Field(description="The visual style or aesthetic of the image to generate")
+    notes: str = Field(description="Constraint or guidance for the image to generate")
+
+class ImageGenerationSchema(BaseModel):
+    image_1_prompt: ImageGenerationPrompt = Field(description="The prompt for the first image to generate")
+    image_2_prompt: ImageGenerationPrompt = Field(description="The prompt for the second image to generate")
+    
