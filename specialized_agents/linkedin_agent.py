@@ -1,12 +1,12 @@
 import asyncio
 import os
-from pydantic.fields import Field
-from pydantic.main import BaseModel
 from dotenv import load_dotenv
 
+from .schema import LinkedInPostSchema
+from .instructions import linkedin_instructions
 from logger import log
 
-from agents import Agent, Runner, trace
+from agents import Agent, Runner
 from agents.extensions.models.litellm_model import LitellmModel
 
 load_dotenv()
@@ -26,27 +26,17 @@ BRAND_CONTEXT = {
     ]
 }
 
-class LinkedInPostSchema(BaseModel):
-    post_1: str = Field(description="First LinkedIn post generated in markdown format")
-    post_2: str = Field(description="Second LinkedIn post generated in markdown format")
+
 
 model = LitellmModel(
     model="groq/meta-llama/llama-4-scout-17b-16e-instruct",
     api_key=groq_api_key,
 )
 
-instructions = """
-You are an autonomous LinkedIn Post Writer Agent.
-Using the provided content plan and brand context, write a single high-quality LinkedIn post for each topic.
-The post must be clear, practical, and grounded in real information, reflecting an AI Engineer’s perspective.
-Follow LinkedIn best practices: concise paragraphs, and a light call-to-action.
-Do not search the web, invent facts, or output anything other than the final post text.
-"""
-
 linkedin_agent = Agent(
     name="LinkedIn Post Writer Agent",
     model=model,
-    instructions=instructions,
+    instructions=linkedin_instructions,
     output_type=LinkedInPostSchema,
 )
 

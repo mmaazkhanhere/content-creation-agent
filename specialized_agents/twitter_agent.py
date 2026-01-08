@@ -1,12 +1,12 @@
 import asyncio
 import os
-from pydantic.fields import Field
-from pydantic.main import BaseModel
 from dotenv import load_dotenv
 
+from .schema import TwitterPostSchema
+from .instructions import twitter_instructions
 from logger import log
 
-from agents import Agent, Runner, trace
+from agents import Agent, Runner
 from agents.extensions.models.litellm_model import LitellmModel
 
 load_dotenv()
@@ -26,28 +26,18 @@ BRAND_CONTEXT = {
     ]
 }
 
-class TwitterPostSchema(BaseModel):
-    topic_1_tweets: list[str] = Field(description="A list of 4 distinct tweets for the first topic (PLAN 1)")
-    topic_2_tweets: list[str] = Field(description="A list of 4 distinct tweets for the second topic (PLAN 2)")
 
 model = LitellmModel(
     model="groq/meta-llama/llama-4-scout-17b-16e-instruct",
     api_key=groq_api_key,
 )
 
-instructions = """
-You are an autonomous Twitter/X Writer Agent.
-Using the provided content plan and brand context, generate a cohesive set of tweets about a single topic.
-Produce either a short thread or a small batch of standalone tweets, optimized for clarity and engagement.
-Tweets should be concise, opinionated but factual, and written from an AI Engineer’s perspective.
-Do not search the web, invent facts, include hashtags excessively, or output anything other than tweet text.
 
-"""
 
 twitter_agent = Agent(
     name="Twitter Content Creator",
     model=model,
-    instructions=instructions,
+    instructions=twitter_instructions,
     output_type=TwitterPostSchema,
 )
 
