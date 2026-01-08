@@ -8,12 +8,12 @@ from agents import Agent, Runner
 from agents.extensions.models.litellm_model import LitellmModel
 
 load_dotenv()
-groq_api_key = os.getenv('GROQ_API_KEY')
+google_api_key = os.getenv('GOOGLE_API_KEY')
 
 
 model = LitellmModel(
-    model="groq/qwen/qwen3-32b",
-    api_key=groq_api_key,
+    model="gemini/gemini-2.5-flash-preview-09-2025",
+    api_key=google_api_key,
 )
 
 

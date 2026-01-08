@@ -183,6 +183,7 @@ async def run_personal_branding_agent():
     
     final_result = await Runner.run(final_output_agent, str(combined_input))
     log("Final Output Agent completed.", level="success")
+    log(f"Final Output: {final_result.final_output}", level="info")
     
     return final_result.final_output
 
