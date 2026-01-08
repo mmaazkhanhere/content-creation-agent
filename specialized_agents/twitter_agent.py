@@ -47,22 +47,36 @@ async def main():
     runner = await Runner.run(
     twitter_agent,
     f"""
-         PLAN 1: topic='OpenAI GPT-4.5 Turbo' source_url='https://techcrunch.com/2026/01/07/openai-gpt-4-5-turbo-rag-native-256k-context/' 
-         thesis="OpenAI's GPT-4.5 Turbo offers a RAG-native architecture, 256k context, and highly competitive pricing, making it a significant advancement in AI technology." 
-         why_now='The recent launch of GPT-4.5 Turbo by OpenAI is a timely development as it addresses current needs for more efficient, cost-effective, and powerful language models.' 
-         key_points=['GPT-4.5 Turbo features a 256k context window.', 'It has a RAG-native architecture.', 'Pricing is under $0.10 per 1k token.',
-        'This model is aimed at enhancing performance and reducing costs.', 'The launch signifies a major step forward in AI technology.'] target_audience='AI developers, 
-        tech industry professionals, and businesses looking for advanced language model solutions.' stance=<Stance.EDUCATIONAL: 'educational'> writing_plan='Step 1: 
-         Introduce the GPT-4.5 Turbo and its key features. Step 2: Discuss the implications of the RAG-native architecture and 256k context window. Step 3: 
-        Analyze the cost benefits and potential market impact. Step 4: Explore potential applications and future developments.' confidence=<Confidence.HIGH: 'high'>
-[19:18:17] ✅ PLAN 2: topic="LangChain's LongRAG" source_url='https://www.theverge.com/2026/01/07/langchain-longrag-million-token-rag-enterprise/' 
-         thesis="LangChain's LongRAG library enables the chunking of entire codebases into 1M-token contexts, facilitating advanced enterprise Q&A capabilities." 
-         why_now='The release of LongRAG by LangChain is timely as it addresses the growing need for more sophisticated and scalable solutions in enterprise Q&A.' 
-         key_points=['LongRAG allows for 1M-token context chunks.', 'It is designed for enterprise Q&A applications.', 'The library enables more comprehensive and 
-         context-aware querying.', 'This development is crucial for enterprises dealing with large codebases.', 'It enhances the capabilities of RAG systems in handling complex queries.'] 
-         target_audience='Enterprise developers, software engineers, and organizations looking to improve their Q&A systems.' 
-stance=<Stance.PRACTICAL: 'practical'> writing_plan="Step 1: Introduce LangChain's LongRAG and its primary function. Step 2: Discuss the benefits of 1M-token context chunks for 
-enterprise Q&A. Step 3: Explore the technical implementation and potential challenges. Step 4: Highlight case studies or potential applications." confidence=<Confidence.HIGH: 'high'>
+         [09:17:30] ✅ PLAN 1: topic='Nvidia Rubin AI platform' 
+         source_url='https://www.cnet.com/best-of-ces-2026/' thesis='The Nvidia Rubin AI 
+         platform is a significant advancement in AI technology, offering six new Rubin 
+         chips that lower the cost of AI tokens, which is crucial for compute-heavy models.' 
+         why_now="The announcement of Nvidia's Rubin AI platform at CES 2026 highlights its 
+         importance in the current AI landscape, making it a timely topic for discussion." 
+         key_points=['Nvidia introduces the Rubin AI platform with six new chips.', 'These 
+         chips aim to lower the cost of AI tokens.', 'This development is key for compute-heavy 
+         AI models.', 'The platform was announced at CES 2026.', 'It signifies a major step 
+         in making AI more accessible.'] target_audience='Tech enthusiasts and professionals 
+         interested in AI advancements.' stance=<Stance.EDUCATIONAL: 'educational'> 
+         writing_plan='Introduce the Nvidia Rubin AI platform and its significance, discuss 
+         its features and implications, provide context on its announcement at CES 2026, 
+         and conclude with its potential impact on the AI industry.' 
+         confidence=<Confidence.HIGH: 'high'>
+         [09:17:30] ✅ PLAN 2: topic='Lenovo Motorola Qira hybrid AI assistant' 
+         source_url='https://www.cnet.com/best-of-ces-2026/' thesis='The Lenovo Motorola 
+         Qira hybrid AI assistant represents a new frontier in AI interaction, offering a 
+         cross-device on-device and cloud AI solution that competes with Apple Intelligence.
+         ' why_now='As AI assistants become increasingly prevalent, the introduction of Qira 
+         at CES 2026 makes it a relevant topic for discussion.' key_points=['Lenovo and
+          Motorola introduce the Qira hybrid AI assistant.', 'It offers cross-device 
+          functionality with both on-device and cloud AI.', 'Qira is positioned as a competitor 
+          to Apple Intelligence.', 'The assistant was showcased at CES 2026.', 'It aims to 
+          enhance user experience across devices.'] target_audience='Consumers and tech 
+          professionals interested in AI assistants and smart devices.' 
+          stance=<Stance.OPINIONATED: 'opinionated'> writing_plan='Introduce the Qira hybrid 
+          AI assistant and its unique features, discuss its competitive positioning against 
+          Apple Intelligence, analyze its potential market impact, and conclude with insights 
+          on its future prospects.' confidence=<Confidence.HIGH: 'high'>
     """
 )
 

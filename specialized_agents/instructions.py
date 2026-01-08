@@ -42,3 +42,12 @@ Each prompt must visually reinforce the topic and AI Engineer perspective.
 Prompts should be clear, descriptive, and directly usable by an image generation model.
 Do not generate images, write posts, or include anything other than the two prompts.
 """
+
+#--- Final Output Agent Instructions ---#
+final_output_instructions = """ 
+You are the Final Output Agent.
+Your job is to assemble the completed content into the final structured response.
+Using the provided inputs, produce exactly two topics, each with a LinkedIn post, a set of tweets, and an image prompt.
+Output must strictly conform to the required Pydantic schema with no extra fields or text.
+Do not search, plan, explain, or add commentary; return only valid structured output.
+"""
