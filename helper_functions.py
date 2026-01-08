@@ -13,7 +13,16 @@ HEADERS = {
     "Accept-Language": "en-US,en;q=0.9",
 }
 
-def fetch_html(url: str) -> tuple[str | None, str | None]:
+MAX_HTML_BYTES = 750_000
+MAX_ARTICLE_CHARS = 2500
+REQUEST_TIMEOUT = 10
+
+def clamp_text(text: str | None, limit: int = MAX_ARTICLE_CHARS) -> str | None:
+    if text and len(text) > limit:
+        return text[:limit]
+    return text
+
+def fetch_html(url: str, max_bytes: int = MAX_HTML_BYTES) -> tuple[str | None, str | None]:
     log(f"Fetching HTML from {url}")
     try:
         response = requests.get(url, headers=HEADERS, timeout=15)
@@ -22,7 +31,22 @@ def fetch_html(url: str) -> tuple[str | None, str | None]:
         if response.status_code == 404:
             return None, "NOT_FOUND"
         response.raise_for_status()
-        return response.text, None
+        chunks = []
+        total = 0
+        for chunk in response.iter_content(chunk_size=64 * 1024):
+            if not chunk:
+                continue
+            chunks.append(chunk)
+            total += len(chunk)
+            if total >= max_bytes:
+                break
+
+        raw = b"".join(chunks)
+
+        # Best-effort decode (requests may not know encoding yet because we stopped early)
+        encoding = response.encoding or "utf-8"
+        html = raw.decode(encoding, errors="replace")
+        return html, None
     except requests.Timeout:
         return None, "TIMEOUT"
     except requests.RequestException:
@@ -33,19 +57,28 @@ def extract_article_text_newspaper(url: str) -> str | None:
     """Extract main article text from a given URL and is optimized for news articles and blog posts.
     It returns None if extraction fails or the extracted content is too short."""
     log(f"Extracting content with Newspaper3k from {url}")
+
+    html, err = fetch_html(url)
+    if err == "FORBIDDEN":
+        log(f"Newspaper3k skipped (FORBIDDEN): {url}", level="warning")
+        return None
+    if not html:
+        log(f"Newspaper3k skipped (fetch error: {err}): {url}", level="warning")
+        return None
     try:
-        article = Article(url)
         config = Config()
         config.browser_user_agent = HEADERS["User-Agent"]
-        config.request_timeout = 15
+        config.request_timeout = REQUEST_TIMEOUT
+        config.fetch_images = False
         
-        article.config = config
-        article.download()
+        article = Article(url, config=config)
+        article.download(input_html=html)  
         article.parse()
+
         text = article.text.strip()
         if len(text) > 200:
             log("Newspaper3k extraction successful", level="success")
-            return text
+            return clamp_text(text)
         log("Newspaper3k extraction failed: Content too short", level="warning")
         return None
     except Exception as e:
@@ -127,8 +160,8 @@ def extract_content_text(url: str) -> str | None:
             text = extractor(html)
             if text:
                 log(f"Successfully extracted {len(text)} chars using {extractor.__name__}", level="success")
-                return text[:5000]
-            time.sleep(1)
+                return clamp_text(text)
+            time.sleep(0.5)
         except Exception as e:
             log(f"{extractor.__name__} failed: {e}", level="error")
 

@@ -104,7 +104,7 @@ def search_news(query: str)->dict:
         results: list[dict[str, str]] = []
 
         for item in data.get("news_results", []):
-            if len(results) >= 2:
+            if len(results) >= 3:
                 break
             url_link = item.get("link")
             content = extract_content_text(url_link)
