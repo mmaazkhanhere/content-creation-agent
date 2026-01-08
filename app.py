@@ -2,37 +2,9 @@ import streamlit as st
 import requests
 import time
 
-# --- MOCK AGENT FUNCTION ---
-def run_content_agents():
-    """
-    Placeholder function for the agents logic.
-    """
-    # Simulating work
-    time.sleep(1.5) 
-    
-    linkedin_post = """🚀 **Revolutionizing Content with AI!**
+from specialized_agents.personal_branding_agent import run_personal_branding_agent
 
-I just used our new AI Agent to generate this post. It's incredible how much time we can save while maintaining high quality. 
-
-Key benefits:
-✅ Faster iterations
-✅ Consistent brand voice
-✅ Data-driven insights
-
-What are your thoughts on AI-driven content? Let's discuss! 👇
-
-#AI #ContentCreation #Marketing #Innovation #FutureOfWork"""
-
-    twitter_post = "AI is changing the game for creators! 🤖✨ \n\nJust generated this with our new agent. The future is here. \n\n#AI #Tech #ContentStrategy"
-    
-    # High-quality AI-related image
-    image_url = "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1600&auto=format&fit=crop"
-    
-    return {
-        "linkedin": linkedin_post,
-        "twitter": twitter_post,
-        "image_url": image_url
-    }
+# Note: We'll use asyncio.run to call the async agent function in Streamlit
 
 # --- UI CONFIGURATION ---
 st.set_page_config(
@@ -85,47 +57,53 @@ st.markdown("Click the button below to generate LinkedIn posts and tweets on lat
 # --- ACTION ---
 if st.button("Create Content"):
     with st.spinner("We are working with our magic..."):
-        st.session_state.content = run_content_agents()
+        try:
+            # Running the async function in a synchronous context
+            import asyncio
+            result = asyncio.run(run_personal_branding_agent("Latest AI/LLM trends for personal branding"))
+            st.session_state.content = result
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
 
 st.markdown("---")
 
 # --- DISPLAY ---
 if "content" in st.session_state:
-    c = st.session_state.content
+    final_output = st.session_state.content
     
-    col1, col2 = st.columns([1, 1], gap="large")
-    
-    with col1:
-        st.subheader("Generated Content")
+    for i, topic_content in enumerate(final_output.topics):
+        st.markdown(f"## Topic {i+1}: {topic_content.topic}")
         
-        # LinkedIn Section
-        st.markdown("### LinkedIn")
-        st.markdown(c["linkedin"]) # Show rendered markdown
-        st.code(c["linkedin"], language="markdown") # Provide easy copy block
+        col1, col2 = st.columns([1, 1], gap="large")
         
-        st.markdown("<br>", unsafe_allow_html=True)
+        with col1:
+            st.subheader("LinkedIn Post")
+            st.markdown(topic_content.linkedin_post)
+            st.code(topic_content.linkedin_post, language="markdown")
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            st.subheader("Twitter / X Thread")
+            tweets_text = "\n---\n".join(topic_content.twitter_tweets)
+            st.markdown(tweets_text)
+            st.code(tweets_text, language="text")
+            
+        with col2:
+            st.subheader("🖼️ Image Generation Prompts")
+            # Since we only have prompts, we display them clearly
+            prompt_data = topic_content.image_generation
+            # We determine which prompt to show based on topic index (1 or 2)
+            current_prompt = prompt_data.image_1_prompt if i == 0 else prompt_data.image_2_prompt
+            
+            st.info(f"**Prompt:** {current_prompt.prompt}")
+            st.write(f"**Style:** {current_prompt.style}")
+            st.write(f"**Notes:** {current_prompt.notes}")
+            
+            # Using a relevant Unsplash image as a placeholder since we don't have a real generator tool yet
+            placeholder_url = f"https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1600&auto=format&fit=crop&sig={i}"
+            st.image(placeholder_url, use_container_width=True, caption=f"Visual representation for: {topic_content.topic}")
         
-        # Twitter Section
-        st.markdown("### Twitter / X")
-        st.markdown(c["twitter"])
-        st.code(c["twitter"], language="text")
-        
-    with col2:
-        st.subheader("🖼️ Generated Image")
-        st.image(c["image_url"], use_container_width=True, caption="AI-Generated Asset")
-        
-        # Download button for the image
-        try:
-            response = requests.get(c["image_url"])
-            if response.status_code == 200:
-                st.download_button(
-                    label="📥 Download Image",
-                    data=response.content,
-                    file_name="generated_ai_asset.png",
-                    mime="image/png"
-                )
-        except Exception as e:
-            st.error("Error fetching image for download.")
+        st.markdown("---")
 
 else:
     # Empty state

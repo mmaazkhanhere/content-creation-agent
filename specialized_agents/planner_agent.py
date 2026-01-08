@@ -1,7 +1,5 @@
 import os
-import asyncio
 
-from datetime import datetime
 from dotenv import load_dotenv
 
 from agents import Agent, Runner
@@ -41,29 +39,3 @@ planner_agent = Agent(
     instructions=planner_instructions,
     output_type=TopTwoTopics
 )
-
-async def main():
-    log("Starting Search Agent...", level="info")
-    search_result = await Runner.run(search_agent, f"Current date: {datetime.now().strftime('%Y-%m-%d')}")
-    search_text = search_result.final_output
-    
-    if not search_text:
-        log("No search results found.", level="error")
-        return
-
-    log("Search completed. Starting Planner Agent...", level="info")
-    planner_result = await Runner.run(
-    planner_agent,
-    f"Current date: {datetime.now():%Y-%m-%d}\n\nRESEARCH NOTES:\n{search_text}"
-)
-
-    
-    plans = planner_result.final_output
-    if plans:
-        log(f"PLAN 1: {plans.plan_1}", level="success")
-        log(f"PLAN 2: {plans.plan_2}", level="success")
-    else:
-        log("Planner failed to generate a plan.", level="error")
-
-if __name__ == "__main__":
-    asyncio.run(main())

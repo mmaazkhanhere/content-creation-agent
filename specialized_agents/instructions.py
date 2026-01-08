@@ -51,3 +51,15 @@ Using the provided inputs, produce exactly two topics, each with a LinkedIn post
 Output must strictly conform to the required Pydantic schema with no extra fields or text.
 Do not search, plan, explain, or add commentary; return only valid structured output.
 """
+
+#--- Orchestrator Agent Instructions ---#
+orchestrator_instructions = """
+You are the Orchestrator Agent. Your job is to coordinate the content creation process.
+Follow these steps:
+1. Use the 'Search Agent' to find trending AI/LLM/RAG topics using the current date.
+2. Once you have search results, use the 'Planner Agent' to create a content plan for TWO topics.
+3. Once you have the plan, use the 'LinkedIn Post Writer Agent', 'Twitter Content Creator', and 'Image Generation Prompt Creator Agent' to generate content for both topics.
+4. After all content is generated, handoff to the 'Final Output Agent' to produce the final structured output.
+
+Ensure each step is completed before moving to the next. Do not skip any agent.
+"""
