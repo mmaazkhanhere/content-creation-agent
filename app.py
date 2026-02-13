@@ -127,13 +127,23 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# --- TOPIC INPUT ---
+topic_input = st.text_input(
+    "Topic (optional)",
+    placeholder="e.g., RAG evaluation, AI agent reliability, vector DB tradeoffs",
+    help="Leave blank for a general AI/LLM/RAG/agent topic search."
+)
+
 # --- GENERATION TRIGGER ---
 col_l, col_m, col_r = st.columns([1, 1, 1])
 with col_m:
     if st.button("Generate Content", use_container_width=True):
         with st.spinner("Collaborating on your content..."):
             try:
-                result = asyncio.run(run_personal_branding_agent())
+                cleaned_topic = topic_input.strip() if topic_input else ""
+                result = asyncio.run(
+                    run_personal_branding_agent(user_topic=cleaned_topic or None)
+                )
                 st.session_state.content = result
                 st.success("Content ready.")
             except Exception as e:

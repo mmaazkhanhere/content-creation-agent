@@ -129,7 +129,7 @@ BRAND_CONTEXT = {
   }
 }
 
-async def run_personal_branding_agent():
+async def run_personal_branding_agent(user_topic: str | None = None):
     """
     Main orchestration function for the personal branding content creation flow.
     
@@ -148,7 +148,20 @@ async def run_personal_branding_agent():
     
     # 1. Search Agent: Discovers current topics
     log("Calling Search Agent...", level="info")
-    search_result = await Runner.run(search_agent, f"Search content for today's date: {datetime.now().strftime('%Y-%m-%d')}")
+    today = datetime.now().strftime('%Y-%m-%d')
+    topic_hint = user_topic.strip() if user_topic else ""
+    if topic_hint:
+        search_prompt = (
+            "Search content for today's date: "
+            f"{today}. User topic provided: {topic_hint}. "
+            "Prioritize this topic while staying within AI/LLM/RAG/agent scope."
+        )
+    else:
+        search_prompt = (
+            "Search content for today's date: "
+            f"{today}. No user topic provided; generalize within AI/LLM/RAG/agent scope."
+        )
+    search_result = await Runner.run(search_agent, search_prompt)
     log("Search Agent completed.", level="success")
     
     # 2. Planner Agent: Creates a content plan based on search results
