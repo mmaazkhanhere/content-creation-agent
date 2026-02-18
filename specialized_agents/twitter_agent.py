@@ -12,7 +12,7 @@ google_api_key = os.getenv('GOOGLE_API_KEY')
 
 
 model = LitellmModel(
-    model="gemini/gemini-2.5-flash-preview-09-2025",
+    model="gemini/gemini-2.5-flash-lite",
     api_key=google_api_key,
 )
 
