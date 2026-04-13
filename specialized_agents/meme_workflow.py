@@ -1,4 +1,5 @@
 import os
+import random
 import difflib
 from datetime import datetime
 
@@ -133,17 +134,29 @@ async def run_twitter_meme_workflow(
     template_options = "\n".join(f"- {t['name']} (id: {t['id']})" for t in templates)
 
     ideation_prompt = (
-        f"Primary topic: {topic}\n"
-        f"Output mode: {output_mode}\n"
-        "Create 3 distinct versions with these style goals: humorous, sharp, concise, insight-driven.\n"
-        "Humor must be tasteful, clever, and grounded in real AI engineering pain points.\n"
-        "Avoid cringe, profanity, insults, and generic meme slang.\n"
-        "For Twitter posts: standalone, complete thought, not a thread.\n"
-        "For LinkedIn posts: complete sentences with coherent start and ending.\n"
-        "Choose template_name from the list below.\n"
-        f"Template options:\n{template_options}\n"
-    )
-
+    f"Primary topic: {topic}\n"
+    f"Output mode: {output_mode}\n"
+    "Platform: Twitter/X only.\n"
+    "Create 3 DISTINCT meme concepts that are genuinely funny, instantly understandable, and highly shareable on Twitter.\n"
+    "The goal is not just to be clever — the meme should make technical people actually laugh because it feels painfully true.\n"
+    "Humor style: sharp, dry, witty, self-aware, builder-minded, slightly ruthless about the problem, never rude for the sake of it.\n"
+    "Make the joke feel like an insider observation from someone who understands AI, engineering, product, and internet culture.\n"
+    "Ground the humor in real AI engineering pain points, contradictions, hype-vs-reality, workflow absurdities, and production headaches.\n"
+    "Prioritize angles like: confident-but-wrong outputs, fake APIs, broken agent memory, context-window pain, fragile tool calling, eval fatigue, overengineered code, demo-vs-production gaps, and model churn.\n"
+    "Avoid generic AI jokes, generic productivity jokes, safe corporate humor, stale meme phrasing, and anything that reads like LinkedIn cosplay.\n"
+    "Avoid cringe, profanity, insults, politics, edgy humor, forced slang, and overexplaining the joke.\n"
+    "The meme text must be SHORT, punchy, and readable in seconds while scrolling.\n"
+    "Every meme should have a clear setup-payoff dynamic and a strong 'too real' effect.\n"
+    "Choose template_name from the list below.\n"
+    "Pick the template that makes the joke hit hardest, not the most obvious template.\n"
+    "For Twitter post copy: write one very short caption per meme.\n"
+    "The Twitter caption must feel native to X: concise, quotable, sharp, and complementary to the meme without repeating it word-for-word.\n"
+    "Do not write threads. Do not write long context. Do not use hashtags unless absolutely necessary.\n"
+    "The output should feel post-ready for Twitter and optimized for fast engagement.\n"
+    "Each variation must use a DIFFERENT comedic angle, not just reword the same joke.\n"
+    "Choose the funnier option over the safer option, as long as it stays tasteful and platform-safe.\n"
+    f"Template options:\n{template_options}\n"
+)
     if research_notes:
         ideation_prompt += f"\nWeb research notes:\n{research_notes}\n"
 
@@ -153,8 +166,14 @@ async def run_twitter_meme_workflow(
     versions = []
     generate_memes = output_mode in {"meme_only", "meme_and_posts"}
 
-    for concept in meme_plan.memes:
-        selected_template = _resolve_template(concept.template_name, templates)
+    # Randomize templates each run and avoid repeats across the 3 versions.
+    if len(templates) >= len(meme_plan.memes):
+        randomized_templates = random.sample(templates, k=len(meme_plan.memes))
+    else:
+        randomized_templates = [random.choice(templates) for _ in meme_plan.memes]
+
+    for idx, concept in enumerate(meme_plan.memes):
+        selected_template = randomized_templates[idx]
         meme_url = None
 
         if generate_memes:
@@ -187,6 +206,8 @@ async def run_twitter_meme_workflow(
         "research_notes": research_notes,
         "versions": versions,
     }
+
+
 
 
 
