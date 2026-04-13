@@ -41,6 +41,7 @@ The app:
 - Topic discovery grounded in external sources.
 - Fallback article extraction pipeline (Newspaper3k -> Readability -> visible HTML extraction).
 - Streamlit UI for one-click content generation.
+- Twitter-focused meme studio with Imgflip template selection and caption generation.
 - Strong output constraints using Pydantic schemas.
 
 ## Architecture
@@ -86,6 +87,8 @@ Final Output Agent
 |  |- image_generation_agent.py         # Image prompt generation agent
 |  |- final_output_agent.py             # Final structured aggregator agent
 |  |- personal_branding_agent.py        # End-to-end orchestration pipeline
+|  |- meme_agent.py                     # Groq meme ideation agent
+|  |- meme_workflow.py                  # Imgflip meme rendering workflow
 |- pyproject.toml                       # Project metadata/dependencies
 |- uv.lock                              # Locked dependency graph
 ```
@@ -101,7 +104,7 @@ Final Output Agent
 - Readability-LXML
 
 Model providers used in current code:
-- Groq (search/planner/image/final agents)
+- Groq (search/planner/image/final/meme agents)
 - Google Gemini (LinkedIn/Twitter agents via LiteLLM routing)
 
 ## Prerequisites
@@ -111,6 +114,7 @@ Model providers used in current code:
   - Google (Gemini)
   - GNews
   - SerpAPI
+  - Imgflip (username + password for meme rendering)
 
 Optional but recommended:
 - `uv` package manager for reproducible installs from `uv.lock`
@@ -123,13 +127,16 @@ GROQ_API_KEY=your_groq_key
 GOOGLE_API_KEY=your_google_key
 GNEWS_API_KEY=your_gnews_key
 SERP_API_KEY=your_serpapi_key
+IMGFLIP_USERNAME=your_imgflip_username
+IMGFLIP_PASSWORD=your_imgflip_password
 ```
 
 Variable usage:
-- `GROQ_API_KEY`: Search, Planner, Image Prompt, and Final Output agents.
+- `GROQ_API_KEY`: Search, Planner, Image Prompt, Final Output, and Meme Ideation agents.
 - `GOOGLE_API_KEY`: LinkedIn and Twitter generation agents.
 - `GNEWS_API_KEY`: Top technology headlines tool.
 - `SERP_API_KEY`: News search tool.
+- `IMGFLIP_USERNAME` and `IMGFLIP_PASSWORD`: Imgflip meme rendering.
 
 ## Installation
 ### Option A: Using uv (recommended)
@@ -164,9 +171,10 @@ Then open:
 5. LinkedIn, Twitter, and Image Prompt agents execute in parallel from the same plan.
 6. Final Output Agent composes a strict `FinalContentOutput`.
 7. Streamlit displays topic cards, tweets, and visual prompt strategy.
+8. Meme Studio can generate 3 Twitter-focused meme versions from topic input or web-search-derived context.
 
 ## Output Contract
-The final response follows `FinalContentOutput`:
+The personal-branding response follows `FinalContentOutput`:
 - `topics` (exactly 2 items)
   - `topic`
   - `linkedin_post`
@@ -178,12 +186,22 @@ The final response follows `FinalContentOutput`:
       - `style`
       - `notes`
 
+The meme studio response returns 3 versions with:
+- selected Imgflip template name/id
+- top and bottom meme text
+- generated meme URL (except posts-only mode)
+- companion Twitter post
+- coherent LinkedIn post
+
 ## Troubleshooting
 - `Missing API key` or provider errors:
   - Confirm `.env` exists in project root and variable names match exactly.
 - `No content generated`:
   - Some article URLs may block scraping; extraction has fallbacks but may still fail.
   - Retry with a specific topic to improve signal quality.
+- `Imgflip errors`:
+  - Verify `IMGFLIP_USERNAME` and `IMGFLIP_PASSWORD` are valid.
+  - Ensure selected template IDs are available through Imgflip API.
 - `ModuleNotFoundError`:
   - Reinstall dependencies with `uv sync` (preferred) or `pip install -e .`.
 - `Streamlit app not loading`:

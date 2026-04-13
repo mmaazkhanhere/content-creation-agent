@@ -47,7 +47,7 @@ class ImageGenerationPrompt(BaseModel):
 class ImageGenerationSchema(BaseModel):
     image_1_prompt: ImageGenerationPrompt = Field(description="The prompt for the first image to generate")
     image_2_prompt: ImageGenerationPrompt = Field(description="The prompt for the second image to generate")
-    
+
 
 #--- Final Output Schema ---#
 class TopicContent(BaseModel):
@@ -58,3 +58,25 @@ class TopicContent(BaseModel):
 
 class FinalContentOutput(BaseModel):
     topics: list[TopicContent] = Field(description="A list of 2 distinct topics with their content", min_items=2, max_items=2)
+
+
+#--- Meme Generation Schema ---#
+class MemeConcept(BaseModel):
+    version: int = Field(description="The version number of this meme concept (1 to 3)")
+    tone: str = Field(description="The tone profile for this meme version")
+    angle: str = Field(description="The core insight or joke angle behind the meme")
+    template_name: str = Field(description="The intended Imgflip meme template name")
+    top_text: str = Field(description="Top text for the meme")
+    bottom_text: str = Field(description="Bottom text for the meme")
+    meme_caption: str = Field(description="Short caption/context line for posting alongside the meme")
+    twitter_post: str = Field(description="A standalone Twitter/X post that complements the meme without repeating caption text")
+    linkedin_post: str = Field(description="A complete LinkedIn post with coherent start and end")
+
+
+class MemeIdeationOutput(BaseModel):
+    topic: str = Field(description="The topic used for meme and post generation")
+    memes: list[MemeConcept] = Field(
+        description="Exactly 3 meme concept variations that are humorous, sharp, concise, and insight-driven",
+        min_items=3,
+        max_items=3,
+    )
