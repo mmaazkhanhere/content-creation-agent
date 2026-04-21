@@ -13,14 +13,18 @@ from logger import log
 
 load_dotenv()
 groq_api_key = os.getenv('GROQ_API_KEY')
+groq_search_model = os.getenv("GROQ_SEARCH_MODEL", "groq/llama-3.3-70b-versatile")
+groq_planner_model = os.getenv(
+    "GROQ_PLANNER_MODEL", "groq/meta-llama/llama-4-scout-17b-16e-instruct"
+)
 
 model_search = LitellmModel(
-    model="groq/moonshotai/kimi-k2-instruct-0905",
+    model=groq_search_model,
     api_key=groq_api_key,
 )
 
 model_planner = LitellmModel(
-    model="groq/meta-llama/llama-4-scout-17b-16e-instruct",
+    model=groq_planner_model,
     api_key=groq_api_key,
 )
 
