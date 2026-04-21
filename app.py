@@ -140,24 +140,16 @@ else:
     meme_topic = st.text_input(
         "Meme Topic (optional)",
         placeholder="e.g., prompt caching, agent evals, MCP reliability",
-        help="Optional when source is web search. If provided, it will be prioritized.",
+        help="Web search is used by default. If provided, search will prioritize this topic.",
     )
 
-    col1, col2 = st.columns(2)
-    with col1:
-        source_mode_label = st.selectbox(
-            "Topic Source",
-            options=["Use provided topic", "Use web search"],
-            index=0,
-        )
-    with col2:
-        output_mode_label = st.selectbox(
-            "Output Mode",
-            options=["Meme only", "LinkedIn + Twitter only", "Meme + LinkedIn + Twitter"],
-            index=0,
-        )
+    output_mode_label = st.selectbox(
+        "Output Mode",
+        options=["Meme only", "LinkedIn + Twitter only", "Meme + LinkedIn + Twitter"],
+        index=0,
+    )
 
-    source_mode = "user_topic" if source_mode_label == "Use provided topic" else "web_search"
+    source_mode = "web_search"
     output_mode_map = {
         "Meme only": "meme_only",
         "LinkedIn + Twitter only": "posts_only",
